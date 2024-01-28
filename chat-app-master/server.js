@@ -3,27 +3,21 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const cors = require("cors");
+const http = require("http"); // Import the http module
 
 const users = require("./routes/api/users");
 const messages = require("./routes/api/messages");
 
 const app = express();
-
-// Port that the webserver listens to
 const port = process.env.PORT || 5000;
 
-const server = app.listen(port, () =>
-  console.log(`Server running on port ${port}`)
-);
+// Use the http module to create an HTTP server
+const server = http.createServer(app);
 
-const io = require("socket.io").listen(server);
+const io = require("socket.io")(server); // Use the server object with socket.io
 
 // Body Parser middleware to parse request bodies
-app.use(
-  bodyParser.urlencoded({
-    extended: false,
-  })
-);
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // CORS middleware
@@ -55,3 +49,8 @@ app.use(function (req, res, next) {
 // Routes
 app.use("/api/users", users);
 app.use("/api/messages", messages);
+
+// Start the server
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
